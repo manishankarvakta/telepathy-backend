@@ -28,7 +28,7 @@ export const userChats = async (req, res) => {
 
 export const userListChats = async (req, res) => {
   const userId = req.params.userId
-  console.log(userId)
+  // console.log(userId)
   try {
     const chat = await ChatModel.aggregate([
       {
@@ -105,7 +105,7 @@ export const userListChats = async (req, res) => {
             },
           },
     ])
-    console.log('Chats:', chat);  
+    // console.log('Chats:', chat);  
 
     const list = [{
       id:"",

@@ -51,11 +51,7 @@ const dbUrl = process.env.DB_URL
 
 app.use(express.static(__dirname + "/template"));
 
-console.log("connected to:", "Telepathy DB");
-
-// const dbUrl = `mongodb+srv://pos-tester:vgQJZDIxungr8ywt@cluster0.3sihhom.mongodb.net/?retryWrites=true&w=majority`;
-
-console.log(dbUrl);
+console.log("connected to:", "Telepathy DB", dbUrl);
 
 
 mongoose
@@ -119,7 +115,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     // remove user from active users
     activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
-    console.log("User Disconnected", activeUsers);
+    // console.log("User Disconnected", activeUsers);
     // send all active users to all users
     io.emit("get-users", activeUsers);
   });
@@ -127,12 +123,14 @@ io.on("connection", (socket) => {
 
   // send message to a specific user
   socket.on("send-message", (data) => {
-    const { reciverId } = data;
-    const user = activeUsers.find((user) => user.userId === reciverId);
-    console.log("Sending from socket to :", user, reciverId)
-    console.log("Data: ", data)
-    if (user) {
-      io.to(user.socketId).emit("recieve-message", data);
+    const { currentUserId } = data;
+    // console.log("Message from Sender :", data)
+    const receiver = activeUsers.find((user) => user.userId !== currentUserId);
+    // console.log("Sending from socket to :", receiver, currentUserId)
+   
+    // console.log("Data: ", data)
+    if (receiver) {
+      io.to(receiver.socketId).emit("recieve-message", data);
     }
   });
 
