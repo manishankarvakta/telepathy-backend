@@ -115,7 +115,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     // remove user from active users
     activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
-    // console.log("User Disconnected", activeUsers);
+    console.log("User Disconnected", activeUsers);
     // send all active users to all users
     io.emit("get-users", activeUsers);
   });
@@ -127,8 +127,13 @@ io.on("connection", (socket) => {
     // console.log("Message from Sender :", data)
     const receiver = activeUsers.find((user) => user.userId !== currentUserId);
     // console.log("Sending from socket to :", receiver, currentUserId)
-   
-    // console.log("Data: ", data)
+    if (!activeUsers.some((user) => user.userId === currentUserId)) {
+      activeUsers.push({ userId: currentUserId, socketId: socket.id });
+      console.log("New User Connected", activeUsers);
+    } 
+    // send all active users to new user
+    io.emit("get-users", activeUsers);
+    console.log("Message send to : ", receiver.socketId)
     if (receiver) {
       io.to(receiver.socketId).emit("recieve-message", data);
     }

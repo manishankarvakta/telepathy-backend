@@ -9,29 +9,72 @@ export const registerUser = async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPass = await bcrypt.hash(req.body.password, salt);
   req.body.password = hashedPass
-  const newUser = new User(req.body);
-  const {phone} = req.body
+  // const newUser = new User(req.body);
+  // const {phone} = req.body
+  // try {
+  //   // addition new
+  //   const oldUser = await User.findOne({ phone });
+
+  //   if (oldUser)
+  //     return res.status(400).json({ status:false,  message: "User already exists with this phone no" });
+
+  //   // changed
+  //   const user = await newUser.save();
+  //   // console.log(user)
+
+  //   const token = jwt.sign(
+  //     { phone: user.phone, name: user.name, id: user._id },
+  //     process.env.JWTKEY,
+  //     { expiresIn: "1h" }
+  //   );
+  //   res.status(200).json({status: true, token: token,
+  //     data: {name: user.name, phone: user.phone,id: user._id, profilePicture: user.profilePicture} 
+  //    });
+  // } catch (error) {
+  //   res.status(500).json({ status:false, message: error.message });
+  // }
   try {
-    // addition new
-    const oldUser = await User.findOne({ phone });
+    const { name, phone, password, identityKey, preKeys, signedPreKeys } = req.body;
 
-    if (oldUser)
+    // Check if user already exists
+    const existingUser = await User.findOne({ phone });
+    if (existingUser) {
       return res.status(400).json({ status:false,  message: "User already exists with this phone no" });
+    }
 
-    // changed
+    // Create new user
+    const newUser = new User({
+      name, 
+      phone,
+      password,
+      identityKey,
+      preKeys,
+      signedPreKeys,
+    });
+
+    console.log(newUser)
     const user = await newUser.save();
-    // console.log(user)
 
-    const token = jwt.sign(
+      const token = jwt.sign(
       { phone: user.phone, name: user.name, id: user._id },
       process.env.JWTKEY,
       { expiresIn: "1h" }
     );
     res.status(200).json({status: true, token: token,
-      data: {name: user.name, phone: user.phone,id: user._id, profilePicture: user.profilePicture} 
+      data: {
+        name: user.name, 
+        phone: user.phone,
+        id: user._id, 
+        profilePicture: user.profilePicture,
+        identityKey:user.identityKey,
+        registrationId:user.registrationId,
+        preKeys:user.preKeys,
+        signedPreKeys:user.signedPreKeys,
+      } 
      });
+    // res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
-    res.status(500).json({ status:false, message: error.message });
+    res.status(500).json({ error: 'Server error', error });
   }
 };
 
@@ -57,7 +100,16 @@ export const loginUser = async (req, res) => {
           { expiresIn: "1h" }
         );
         res.status(200).json({status: true, token: token, 
-          data: {name: user.name, phone: user.phone,id: user._id,  profilePicture: user.profilePicture} 
+          data: {
+            name: user.name, 
+            phone: user.phone,
+            id: user._id,  
+            profilePicture: user.profilePicture,
+            identityKey:user.identityKey,
+            registrationId:user.registrationId,
+            preKeys:user.preKeys,
+            signedPreKeys:user.signedPreKeys,
+          } 
         });
       }
     } else {

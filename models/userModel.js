@@ -18,7 +18,23 @@ const userSchema = mongoose.Schema(
     country: { type: String },
     followers: [],
     following: [],
+    lastActive: { type: Date, default: Date.now },
     status: { type: String, enum: ["active", "inactive"] },
+    //For E2EE
+    identityKey: { type: String, required: true },
+    preKeys: [
+      {
+        keyId: Number,
+        publicKey: String,
+      },
+    ],
+    signedPreKeys: [
+      {
+        keyId: Number,
+        publicKey: String,
+        signature: String,
+      },
+    ],
   },
   {
     timestamps: true,

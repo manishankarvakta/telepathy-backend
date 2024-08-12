@@ -123,9 +123,9 @@ export const userListChats = async (req, res) => {
 export const findChat = async (req, res) => {
   try {
     const chat = await ChatModel.findOne({
-      members: { $all: [req.params.firstId, req.params.secondId] },
+      members: { $all: [$toObjectId(req.params.firstId), $toObjectId(req.params.secondId)] },
     });
-    // console.log(chat)
+    console.log(chat)
     if(chat === null ){
       res.status(200).json({status:false, data:chat}) 
     }else{
