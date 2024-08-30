@@ -21,20 +21,8 @@ const userSchema = mongoose.Schema(
     lastActive: { type: Date, default: Date.now },
     status: { type: String, enum: ["active", "inactive"] },
     //For E2EE
-    identityKey: { type: String, required: true },
-    preKeys: [
-      {
-        keyId: Number,
-        publicKey: String,
-      },
-    ],
-    signedPreKeys: [
-      {
-        keyId: Number,
-        publicKey: String,
-        signature: String,
-      },
-    ],
+    publicKey: {type: String},
+    privateKey: {type: String},
   },
   {
     timestamps: true,

@@ -5,7 +5,7 @@ import authMiddleWare from '../middlewares/authMiddleware.js';
 const router = express.Router()
 
 router.get('/:id', getUser);
-router.get('/search/:query', getSearch);
+router.get('/search/:userId/:query', getSearch);
 router.get('/',getAllUsers)
 router.put('/:id',authMiddleWare, updateUser)
 router.delete('/:id',authMiddleWare, deleteUser)

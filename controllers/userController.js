@@ -23,6 +23,9 @@ export const getUser = async (req, res) => {
 export const getSearch = async (req, res) => {
     //TODO:: Search should not be include the Current user
 
+    const currentUserId = req.params.userId
+    console.log(currentUserId)
+
     const payload = req.params?.query?.trim().toString().toLocaleLowerCase();
     const isNumber = /^\d/.test(payload);
 
@@ -31,18 +34,25 @@ export const getSearch = async (req, res) => {
     if (!isNumber) {
       query = { name: { $regex: new RegExp("\\b" + payload + ".*?", "i") } };
     } else {
-      query = {
-        $or: [
-          { phone: { $regex: new RegExp("^" + payload + ".*", "i") } },
-        ],
-      };
+      query = { phone: { $regex: new RegExp("^" + payload + ".*", "i") } };
     }
 
   try {
     const user = await User.aggregate([
       {
-        $match: query,
+        $match:{ ...query,
+          // _id:{$ne: ObjectId(currentUserId)} 
+        }
       },
+      {
+        $project: { // Specify the fields to include or exclude
+          name: 1,      // Include the 'name' field
+          phone: 1,     // Include the 'phone' field
+          publicKey: 1,     // Include the 'phone' field
+          profilePicture: 1,     // Include the 'phone' field
+          _id: 1       // Exclude the '_id' field (optional)
+        }
+      }
     ])
     // console.log(user)
     if (user) {

@@ -34,22 +34,28 @@ export const registerUser = async (req, res) => {
   //   res.status(500).json({ status:false, message: error.message });
   // }
   try {
-    const { name, phone, password, identityKey, preKeys, signedPreKeys } = req.body;
+    const { name, phone, password,about,
+      ecdh,
+      publicKey,
+      privateKey, } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ phone });
     if (existingUser) {
       return res.status(400).json({ status:false,  message: "User already exists with this phone no" });
     }
+    
+    // console.log(req.body)
 
     // Create new user
     const newUser = new User({
       name, 
       phone,
       password,
-      identityKey,
-      preKeys,
-      signedPreKeys,
+      about,
+      ecdh,
+      publicKey,
+      privateKey,
     });
 
     console.log(newUser)
@@ -62,14 +68,14 @@ export const registerUser = async (req, res) => {
     );
     res.status(200).json({status: true, token: token,
       data: {
+        id: user._id,  
         name: user.name, 
         phone: user.phone,
-        id: user._id, 
+        about: user.about,  
         profilePicture: user.profilePicture,
-        identityKey:user.identityKey,
-        registrationId:user.registrationId,
-        preKeys:user.preKeys,
-        signedPreKeys:user.signedPreKeys,
+        ecdh:user.ecdh,
+        publicKey:user.publicKey,
+        privateKey:user.privateKey,
       } 
      });
     // res.status(201).json({ message: 'User registered successfully' });
@@ -101,14 +107,14 @@ export const loginUser = async (req, res) => {
         );
         res.status(200).json({status: true, token: token, 
           data: {
+            id: user._id,  
             name: user.name, 
             phone: user.phone,
-            id: user._id,  
+            about: user.about,  
             profilePicture: user.profilePicture,
-            identityKey:user.identityKey,
-            registrationId:user.registrationId,
-            preKeys:user.preKeys,
-            signedPreKeys:user.signedPreKeys,
+            ecdh:user.ecdh,
+            publicKey:user.publicKey,
+            privateKey:user.privateKey,
           } 
         });
       }

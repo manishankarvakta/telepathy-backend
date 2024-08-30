@@ -103,12 +103,15 @@ const io = setupSocket(server, app);
 io.on("connection", (socket) => {
   // add new User
   socket.on("new-user-add", (newUserId) => {
-    // if user is not added previously
-    if (!activeUsers.some((user) => user.userId === newUserId)) {
-      activeUsers.push({ userId: newUserId, socketId: socket.id });
-      console.log("New User Connected", activeUsers);
-    } 
-    // send all active users to new user
+    if(newUserId !== undefined){
+
+      // if user is not added previously
+      if (!activeUsers.some((user) => user.userId === newUserId)) {
+        activeUsers.push({ userId: newUserId, socketId: socket.id });
+        console.log("New User Connected", activeUsers);
+      } 
+      // send all active users to new user
+    }
     io.emit("get-users", activeUsers);
   });
 
@@ -123,19 +126,28 @@ io.on("connection", (socket) => {
 
   // send message to a specific user
   socket.on("send-message", (data) => {
-    const { currentUserId } = data;
-    // console.log("Message from Sender :", data)
-    const receiver = activeUsers.find((user) => user.userId !== currentUserId);
+    const message = data.chatId
+
+    const { 
+      chatId,
+      senderId,
+      reciverId,
+      text } = message;
+    // console.log("Message from Sender :", message)
+    const receiver = activeUsers.find((user) => user.userId === reciverId);
     // console.log("Sending from socket to :", receiver, currentUserId)
-    if (!activeUsers.some((user) => user.userId === currentUserId)) {
-      activeUsers.push({ userId: currentUserId, socketId: socket.id });
-      console.log("New User Connected", activeUsers);
+    if (!activeUsers.some((user) => user.userId === senderId)) {
+      activeUsers.push({ userId: senderId, socketId: socket.id });
+      // console.log("New User Connected", activeUsers);
     } 
+    // console.log("receiver :", receiver,reciverId)
     // send all active users to new user
     io.emit("get-users", activeUsers);
-    console.log("Message send to : ", receiver.socketId)
+
+    // console.log("Message send to : ", receiver?.socketId)
+    // console.log("message", message)
     if (receiver) {
-      io.to(receiver.socketId).emit("recieve-message", data);
+      io.to(receiver?.socketId).emit("recieve-message", message);
     }
   });
 
@@ -147,10 +159,10 @@ io.on("connection", (socket) => {
 const errorHandler = (err, req, res, next) => {
   if (res.headersSent) {
     return next(err);
-  } else {
+  } else { 
     if (err instanceof multer.MulterError) {
       res.status(500).send(err.message);
-    } else {
+    } else { 
       res.status(500).json({ err: err });
     }
   }
